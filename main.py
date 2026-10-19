@@ -33,16 +33,18 @@ def back_keyboard():
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
+# Команда /start
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
     await message.answer(
         "👋 **Вітаємо у Metro Shop PUBG Mobile!**\n\n"
-        "Оберіть потрібний розділ із прайсом нижче або **напишіть своє запитання в чат**, і наш ШІ-консультант допоможе вам!\n\n"
+        "Оберіть потрібний розділ із прайсом нижче за допомогою кнопок або **напишіть своє запитання в чат** — наш консультант допоможе вам!\n\n"
         "⚠️ *При оплаті комісія за ваш рахунок, щоб сума була повною!*",
         reply_markup=main_keyboard(),
         parse_mode="Markdown"
     )
 
+# Повернення в головне меню
 @dp.callback_query(F.data == "main_menu")
 async def back_to_main(callback: types.CallbackQuery):
     await callback.message.edit_text(
@@ -53,6 +55,7 @@ async def back_to_main(callback: types.CallbackQuery):
     )
     await callback.answer()
 
+# 1. Супроводи
 @dp.callback_query(F.data == "category_boost")
 async def show_boost(callback: types.CallbackQuery):
     text = (
@@ -72,6 +75,7 @@ async def show_boost(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# 2. Броня та Шоломи
 @dp.callback_query(F.data == "category_armor")
 async def show_armor(callback: types.CallbackQuery):
     text = (
@@ -91,6 +95,7 @@ async def show_armor(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# 3. Зброя
 @dp.callback_query(F.data == "category_weapons")
 async def show_weapons(callback: types.CallbackQuery):
     text = (
@@ -105,6 +110,7 @@ async def show_weapons(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# 4. Аксесуари
 @dp.callback_query(F.data == "category_accs")
 async def show_accs(callback: types.CallbackQuery):
     text = (
@@ -118,6 +124,7 @@ async def show_accs(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# 5. Буст балансу
 @dp.callback_query(F.data == "category_balance")
 async def show_balance(callback: types.CallbackQuery):
     text = (
@@ -133,6 +140,7 @@ async def show_balance(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# 6. Ножі та Мечі
 @dp.callback_query(F.data == "category_knives")
 async def show_knives(callback: types.CallbackQuery):
     text = (
@@ -140,7 +148,7 @@ async def show_knives(callback: types.CallbackQuery):
         "*(Усі ножі/мечі залишаються у вас назавжди‼️)*\n\n"
         "‼️ **КЕРАМБІТ** ➖ 3100 ₴\n\n"
         "🗡️ **МЕЧ** ➖ 4200 грн 💲\n\n"
-        "🏬 **НІЖ-МЕТЕЛЕК :**\n"
+        "🏬 **НІЖ-МЕТЕЛЕК (Балісонг):**\n"
         "• Недоторканий (можна подарувати) ➖ 3100 грн *(НЕМАЄ В НАЯВНОСТІ)*\n"
         "• Оригінал (без напису) ➖ 650 грн\n"
         "• Дублікат (з напису «Получено от друга») ➖ 450 грн\n\n"
@@ -149,32 +157,63 @@ async def show_knives(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
-# ШІ-консультант (розумний автовідповідач для магазину)
+# Розумний ШІ-консультант магазину
 @dp.message(F.text)
 async def smart_ai_consultant(message: types.Message):
     user_text = message.text.lower()
     
-    # Автоматичні відповіді на популярні запитання
-    if any(word in user_text for word in ["купити", "замовити", "цена", "ціна", "прайс", "розклад", "де купити"]):
-        reply = "🛒 Весь актуальний прайс-лист доступний у головному меню за кнопками вище! Для оформлення замовлення пишіть нашому менеджеру: @managerVODAFON 🤝"
-    elif any(word in user_text for word in ["менеджер", "адмін", "власник", "продавець"]):
-        reply = "👤 Зв'язатися з нашим менеджером для покупки можна напряму: @managerVODAFON 🚀"
-    elif any(word in user_text for word in ["комісія", "оплата", "перевод", "банк"]):
-        reply = "⚠️ Зверніть увагу: при оплаті замовлення комісія платформи завжди за ваш рахунок, щоб на баланс менеджера зайшла повна сума!"
-    elif any(word in user_text for word in ["привіт", "доброго дня", "здарова", "hi", "hello"]):
-        reply = "👋 Вітаємо у VODAFON METRO SHOP! Чим можемо допомогти по Metro Royale? Обирайте категорії у меню або звертайтесь до @managerVODAFON 🎮"
+    # 1. Зброя, МК14, обвеси
+    if any(word in user_text for word in ["мк", "mk", "зброя", "мк14", "mg3", "js9", "обвес", "пушка"]):
+        reply = (
+            "🔫 **Ціни на зброю:**\n"
+            "• МК14 (покращена) ➖ 9 грн\n"
+            "• МК14 (вишка) ➖ 15 грн\n"
+            "• MG3 (вишка) ➖ 12 грн\n"
+            "• JS9 (вишка) ➖ 13 грн\n\n"
+            "‼️ *За кожен обвес +1 грн*\n"
+            "⚠️ *Комісія при оплаті за ваш рахунок!*\n\n"
+            "✍️ Для замовлення пишіть: @managerVODAFON"
+        )
+    # 2. Екіпіровка, броня, шоломи, 6 ур
+    elif any(word in user_text for word in ["екіпіровку", "екіпіровка", "броня", "шлем", "шолом", "рюкзак", "6 ур", "весь шмот"]):
+        reply = (
+            "🛍️ **Ціни на екіпіровку (6 рівень):**\n"
+            "• Шоломи: звичайний — 7 грн, КБ/СФ — 8 грн\n"
+            "• Броня: звичайна — 8 грн, КБ/СФ — 9 грн\n"
+            "• Рюкзак: 6 ур. — 9 грн\n\n"
+            "⚠️ *Комісія при оплаті за ваш рахунок!*\n"
+            "✍️ Замовити можна у менеджера: @managerVODAFON"
+        )
+    # 3. Супроводи на 7 та 9 карти
+    elif any(word in user_text for word in ["карту", "карти", "супровід", "супроводи", "7", "9", "метро", "карт"]):
+        reply = (
+            "📱 **Супроводи Metro Royale:**\n"
+            "🔹 7 карта ➖ 70 грн *(9 млн радіка + від 2 Ф6+)*\n"
+            "👑 VIP 7 карта ➖ 110 грн *(10 млн радіка + від 3 Ф6+)*\n"
+            "👑 VIP 9 карта ➖ 115 грн *(12 млн радіка + білети + Ф6+)*\n"
+            "🏆 GOLD 7 карта ➖ 125 грн *(15 млн радіка + від 4 Ф6+)*\n"
+            "🏆 GOLD 9 карта ➖ 200 грн *(18 млн радіка + білети + Ф6+)*\n\n"
+            "✍️ Записатися на супровід: @managerVODAFON"
+        )
+    # 4. Ціни / замовлення загалом
+    elif any(word in user_text for word in ["купити", "замовити", "цена", "ціна", "прайс", "коштує"]):
+        reply = "🛒 Весь актуальний прайс-лист розбитий по категоріях у нашому головному меню (натисніть /start). Для замовлення звертайтесь до @managerVODAFON 🤝"
+    # 5. Менеджер / зв'язок
+    elif any(word in user_text for word in ["менеджер", "адмін", "власник", "продавець", "онлайн"]):
+        reply = "👤 Наш менеджер на зв'язку! Напишіть йому для оформлення замовлення: @managerVODAFON 🚀"
+    # 6. Загальна відповідь
     else:
         reply = (
-            "🤖 Я віртуальний помічник магазину **VODAFON METRO SHOP**.\n"
-            "Я допоможу підібрати екіпірування, зброю чи супровід на 7/9 карти.\n\n"
-            "💬 З усіх питань придбання та замовлень звертайтесь до менеджера: @managerVODAFON"
+            "🤖 Вітаю! Я помічник **VODAFON METRO SHOP**.\n"
+            "Я можу підказати ціни на зброю, броню, супроводи та аксесуари.\n\n"
+            "💬 З усіх питань придбання звертайтесь до менеджера: @managerVODAFON"
         )
         
     await message.answer(reply, parse_mode="Markdown")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
-    print("Бот з консультантом успішно запущено!")
+    print("Бот запущено успішно!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

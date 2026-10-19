@@ -16,7 +16,7 @@ def main_keyboard():
         [InlineKeyboardButton(text="🪖 Сеты и Броня 6 ур.", callback_data="armor")],
         [InlineKeyboardButton(text="🔫 Оружие (Вышка / СФ)", callback_data="weapons")],
         [InlineKeyboardButton(text="🗺️ Сопровождение 7-8 карты", callback_data="boost")],
-        [InlineKeyboardButton(text="💬 Написать оператору", url="https://t.me/ТВОЙ_ТЕЛЕГРАМ_НИК")] # Поменяй на свой юзернейм
+        [InlineKeyboardButton(text="💬 Написать оператору", url="https://t.me/managerVODAFON")] # Поменяй на свой юзернейм
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 

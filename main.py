@@ -12,6 +12,7 @@ dp = Dispatcher()
 
 MANAGER_LINK = "https://t.me/managerVODAFON"
 
+# Головне меню з кнопками
 def main_keyboard():
     kb = [
         [InlineKeyboardButton(text="📱 Супроводи (7 і 9 картки)", callback_data="category_boost")],
@@ -24,6 +25,7 @@ def main_keyboard():
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
+# Кнопка "Назад"
 def back_keyboard():
     kb = [
         [InlineKeyboardButton(text="⬅️ Назад у меню", callback_data="main_menu")],
@@ -35,7 +37,7 @@ def back_keyboard():
 async def cmd_start(message: types.Message):
     await message.answer(
         "👋 **Вітаємо у Metro Shop PUBG Mobile!**\n\n"
-        "Оберіть потрібний розділ із прайсом нижче:\n"
+        "Оберіть потрібний розділ із прайсом нижче або **напишіть своє запитання в чат**, і наш ШІ-консультант допоможе вам!\n\n"
         "⚠️ *При оплаті комісія за ваш рахунок, щоб сума була повною!*",
         reply_markup=main_keyboard(),
         parse_mode="Markdown"
@@ -138,7 +140,7 @@ async def show_knives(callback: types.CallbackQuery):
         "*(Усі ножі/мечі залишаються у вас назавжди‼️)*\n\n"
         "‼️ **КЕРАМБІТ** ➖ 3100 ₴\n\n"
         "🗡️ **МЕЧ** ➖ 4200 грн 💲\n\n"
-        "🏬 **НІЖ-МЕТЕЛЕК:**\n"
+        "🏬 **НІЖ-МЕТЕЛЕК :**\n"
         "• Недоторканий (можна подарувати) ➖ 3100 грн *(НЕМАЄ В НАЯВНОСТІ)*\n"
         "• Оригінал (без напису) ➖ 650 грн\n"
         "• Дублікат (з напису «Получено от друга») ➖ 450 грн\n\n"
@@ -147,9 +149,32 @@ async def show_knives(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# ШІ-консультант (розумний автовідповідач для магазину)
+@dp.message(F.text)
+async def smart_ai_consultant(message: types.Message):
+    user_text = message.text.lower()
+    
+    # Автоматичні відповіді на популярні запитання
+    if any(word in user_text for word in ["купити", "замовити", "цена", "ціна", "прайс", "розклад", "де купити"]):
+        reply = "🛒 Весь актуальний прайс-лист доступний у головному меню за кнопками вище! Для оформлення замовлення пишіть нашому менеджеру: @managerVODAFON 🤝"
+    elif any(word in user_text for word in ["менеджер", "адмін", "власник", "продавець"]):
+        reply = "👤 Зв'язатися з нашим менеджером для покупки можна напряму: @managerVODAFON 🚀"
+    elif any(word in user_text for word in ["комісія", "оплата", "перевод", "банк"]):
+        reply = "⚠️ Зверніть увагу: при оплаті замовлення комісія платформи завжди за ваш рахунок, щоб на баланс менеджера зайшла повна сума!"
+    elif any(word in user_text for word in ["привіт", "доброго дня", "здарова", "hi", "hello"]):
+        reply = "👋 Вітаємо у VODAFON METRO SHOP! Чим можемо допомогти по Metro Royale? Обирайте категорії у меню або звертайтесь до @managerVODAFON 🎮"
+    else:
+        reply = (
+            "🤖 Я віртуальний помічник магазину **VODAFON METRO SHOP**.\n"
+            "Я допоможу підібрати екіпірування, зброю чи супровід на 7/9 карти.\n\n"
+            "💬 З усіх питань придбання та замовлень звертайтесь до менеджера: @managerVODAFON"
+        )
+        
+    await message.answer(reply, parse_mode="Markdown")
+
 async def main():
     logging.basicConfig(level=logging.INFO)
-    print("Бот запущено успішно!")
+    print("Бот з консультантом успішно запущено!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

@@ -4,17 +4,22 @@ import logging
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandStart
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from google import genai
 
-# Отримуємо токен із змінних оточення Railway
+# Отримуємо токени зі змінних оточення Railway
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Юзернейм менеджера для покупки
+# Ініціалізація клієнта Gemini AI
+ai_client = genai.Client(api_key=GEMINI_API_KEY)
+
+# Посилання на менеджера для купівлі
 MANAGER_LINK = "https://t.me/managerVODAFON"
 
-# Головне меню
+# Головне меню з кнопками
 def main_keyboard():
     kb = [
         [InlineKeyboardButton(text="📱 Супроводи (7 і 9 картки)", callback_data="category_boost")],
@@ -27,7 +32,7 @@ def main_keyboard():
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
-# Кнопка "Назад" в головне меню
+# Кнопка "Назад"
 def back_keyboard():
     kb = [
         [InlineKeyboardButton(text="⬅️ Назад у меню", callback_data="main_menu")],
@@ -40,7 +45,7 @@ def back_keyboard():
 async def cmd_start(message: types.Message):
     await message.answer(
         "👋 **Вітаємо у Metro Shop PUBG Mobile!**\n\n"
-        "Оберіть потрібний розділ із прайсом нижче:\n"
+        "Оберіть потрібний розділ із прайсом нижче за допомогою кнопок або **поставте будь-яке запитання в чат** — наш ШІ-консультант допоможе вам!\n\n"
         "⚠️ *При оплаті комісія за ваш рахунок, щоб сума була повною!*",
         reply_markup=main_keyboard(),
         parse_mode="Markdown"
@@ -77,7 +82,7 @@ async def show_boost(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
-# 2. Броня, Шоломи, Рюкзаки
+# 2. Броня та Шоломи
 @dp.callback_query(F.data == "category_armor")
 async def show_armor(callback: types.CallbackQuery):
     text = (
@@ -142,7 +147,7 @@ async def show_balance(callback: types.CallbackQuery):
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
-# 6. Мечі та ножі
+# 6. Ножі та Мечі
 @dp.callback_query(F.data == "category_knives")
 async def show_knives(callback: types.CallbackQuery):
     text = (
@@ -150,21 +155,44 @@ async def show_knives(callback: types.CallbackQuery):
         "*(Усі ножі/мечі залишаються у вас назавжди‼️)*\n\n"
         "‼️ **КЕРАМБІТ** ➖ 3100 ₴\n\n"
         "🗡️ **МЕЧ** ➖ 4200 грн 💲\n\n"
-        "🏬 **НІЖ-МЕТЕЛЕК :**\n"
+        "🏬 **НІЖ-МЕТЕЛЕК (Балісонг):**\n"
         "• Недоторканий (можна подарувати) ➖ 3100 грн *(НЕМАЄ В НАЯВНОСТІ)*\n"
-       
-       "• Оригінал (без напису) ➖ 650 грн\n"
-      
+        "• Оригінал (без напису) ➖ 650 грн\n"
         "• Дублікат (з написом «Получено от друга») ➖ 450 грн\n\n"
-        
         "⚠️ *Комісія при оплаті за ваш рахунок!*"
     )
     await callback.message.edit_text(text, reply_markup=back_keyboard(), parse_mode="Markdown")
     await callback.answer()
 
+# Обробник текстових повідомлень через Gemini AI
+@dp.message(F.text)
+async def handle_ai_chat(message: types.Message):
+    await bot.send_chat_action(chat_id=message.chat.id, action="typing")
+
+    system_instruction = (
+        "Ти — дружній та ввічливий ШІ-консультант магазину PUBG Mobile Metro Shop. "
+        "Ти допомагаєш гравцям із запитаннями щодо режиму Metro Royale, цін на сеты, зброю (МК14, JS9, MG3), "
+        "супроводи на 7 та 9 карту, буст балансу та ножі. "
+        "Відповідай українською мовою, коротко, зрозуміло та з використанням емодзі. "
+        "Якщо користувач хоче купити товар, нагадай, що для покупки можна звернутися до менеджера @managerVODAFON."
+    )
+
+    try:
+        response = ai_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=message.text,
+            config=genai.types.GenerateContentConfig(
+                system_instruction=system_instruction
+            )
+        )
+        await message.answer(response.text)
+    except Exception as e:
+        logging.error(f"Помилка Gemini API: {e}")
+        await message.answer("Вибачте, виникла тимчасова помилка при обробці запиту. Спробуйте скористатися кнопками меню або напишіть менеджеру @managerVODAFON.")
+
 async def main():
     logging.basicConfig(level=logging.INFO)
-    print("Бот із прайсом запущен на Railway!")
+    print("Бот із прайсом та Gemini AI успішно запущений!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
